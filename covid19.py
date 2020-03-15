@@ -2,24 +2,45 @@ from dataclasses import dataclass
 import datetime
 from itertools import count
 
+import click
+
 
 last_updated = datetime.date.fromisoformat("2020-03-14")
+eta = 0.01
 
 
-def to_ratios(cases):
+def to_rates(cases):
     return [(y / x) for x, y in zip(cases, cases[1:])]
 
 
-class Berlin:
+class Population:
+    @classmethod
+    def rates(cls):
+        return to_rates(cls.cases)
+
+
+class Berlin(Population):
     population = 3_700_000
     cases = [1, 3, 6, 9, 15, 24, 28, 40, 48, 90, 137, 174, 216]
-    ratios = to_ratios(cases)
 
 
-class Germany:
+class Germany(Population):
     population = 82_900_000
     cases = [16, 18, 21, 26, 53, 66, 117, 150, 188, 242, 354, 534, 684, 847, 1112, 1460, 1884, 2369, 3062, 3795]
-    ratios = to_ratios(cases)
+
+
+populations = Berlin, Germany
+
+
+def predict_once(cases, rate, population):
+    return int(cases * rate * (1 - (cases / population)))
+
+
+def predict(days, cases, rate, population):
+    with click.progressbar(range(days), label="Predicting cases", length=days) as bar:
+        for _ in bar:
+            cases = predict_once(cases, rate, population)
+    return cases
 
 
 @dataclass
@@ -30,52 +51,74 @@ class Prediction:
     percent: float
 
     @classmethod
-    def _predict(cls, days, cases, rate, population):
-        date = last_updated + datetime.timedelta(days=days)
-        cases = int(cases * rate ** days)
+    def predict(cls, days, cases, rate, population):
+        cases = predict(days, cases, rate, population)
         percent = min(100, 100 * cases / population)
+        date = last_updated + datetime.timedelta(days=days)
         return cls(days, date, cases, percent)
 
     @classmethod
-    def predict(cls, days, klass):
-        return cls._predict(days, klass.cases[-1], klass.ratios[-1], klass.population)
+    def predict_class(cls, days, klass):
+        return cls.predict(days, klass.cases[-1], klass.rates()[-1], klass.population)
 
 
-def header(message):
-    print()
-    print(message)
-    print("=" * len(message))
-    print()
-
-
-def predict(klass):
-    header(f"{klass.__name__}, growth rate = {klass.ratios[-1]:.2f}")
-
-    for days in count():
-        prediction = Prediction.predict(days, klass)
-        print(f"{prediction.days:3}  {prediction.date:%b %d}  {prediction.percent:6.2f}%  {prediction.cases:8}")
-
-        if prediction.percent >= 100:
-            break
+def is_saturated(prediction, previous):
+    return False if previous is None else prediction.cases / previous.cases < 1 + eta
 
 
 def predict_saturation(klass, rate):
+    prediction = None
+
     for days in count():
-        prediction = Prediction._predict(days, klass.cases[-1], rate, klass.population)
-        if prediction.percent >= 100:
+        previous = prediction
+        prediction = Prediction.predict(days, klass.cases[-1], rate, klass.population)
+
+        if is_saturated(prediction, previous):
             return prediction
 
 
-def by_growth_rate(klass):
-    header(f"{klass.__name__}")
+def print_heading(heading):
+    print()
+    print(heading)
+    print("=" * len(heading))
+    print()
 
-    for rate in count(klass.ratios[-1], -0.01):
+
+def print_predictions_by_day_for(klass):
+    print_heading(f"{klass.__name__}, growth rate = {klass.rates()[-1]:.2f}")
+    prediction = None
+
+    for days in count():
+        previous = prediction
+        prediction = Prediction.predict_class(days, klass)
+        print(f"{prediction.days:3}  {prediction.date:%b %d}  {prediction.percent:6.2f}%  {prediction.cases:8}")
+
+        if is_saturated(prediction, previous):
+            break
+
+
+def print_saturation_date_for_growth_rates_for(klass):
+    print_heading(f"{klass.__name__}")
+
+    for rate in count(klass.rates()[-1], -0.01):
         if rate < 1.01:
             break
         prediction = predict_saturation(klass, rate)
-        print(f"{rate:.2f}  |  {prediction.days:4} days  |  {prediction.date:%b %d %Y}")
+        print(f"{rate:.2f}  |  {prediction.days:4} days  |  {prediction.date:%b %d %Y}  {prediction.percent:6.2f}%  {prediction.cases:8}")
 
 
-if __name__ == "__main__":
-    by_growth_rate(Berlin)
-    by_growth_rate(Germany)
+@click.group()
+def main():
+    """COVID-19 analysis"""
+
+
+@main.command()
+def print_predictions_by_day():
+    for population in populations:
+        print_predictions_by_day_for(population)
+
+
+@main.command()
+def print_saturation_date_for_growth_rates():
+    for population in populations:
+        print_saturation_date_for_growth_rates_for(population)
