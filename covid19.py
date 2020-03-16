@@ -9,6 +9,14 @@ last_updated = datetime.date.fromisoformat("2020-03-14")
 eta = 0.01
 
 
+@dataclass
+class Options:
+    exponential: bool = False
+
+
+options = Options()
+
+
 def to_rates(cases):
     return [(y / x) for x, y in zip(cases, cases[1:])]
 
@@ -38,8 +46,8 @@ def predict_once(cases, rate, population):
     return int(cases * rate * (1 - (cases / population)))
 
 
-def predict(days, cases, rate, population, exponential):
-    if exponential:
+def predict(days, cases, rate, population):
+    if options.exponential:
         return int(cases * rate ** days)
     seq = list(range(days))
     with click.progressbar(seq, label="Predicting cases") as bar:
@@ -56,15 +64,15 @@ class Prediction:
     percent: float
 
     @classmethod
-    def predict(cls, days, cases, rate, population, exponential):
-        cases = predict(days, cases, rate, population, exponential)
+    def predict(cls, days, cases, rate, population):
+        cases = predict(days, cases, rate, population)
         percent = min(100, 100 * cases / population)
         date = last_updated + datetime.timedelta(days=days)
         return cls(days, date, cases, percent)
 
     @classmethod
-    def predict_class(cls, days, klass, exponential):
-        return cls.predict(days, klass.cases[-1], klass.rates()[-1], klass.population, exponential)
+    def predict_class(cls, days, klass):
+        return cls.predict(days, klass.cases[-1], klass.rates()[-1], klass.population)
 
 
 def is_saturated(prediction, previous):
@@ -77,12 +85,12 @@ def is_saturated(prediction, previous):
     return False
 
 
-def predict_saturation(klass, rate, exponential):
+def predict_saturation(klass, rate):
     prediction = None
 
     for days in count():
         previous = prediction
-        prediction = Prediction.predict(days, klass.cases[-1], rate, klass.population, exponential)
+        prediction = Prediction.predict(days, klass.cases[-1], rate, klass.population)
 
         if is_saturated(prediction, previous):
             return prediction
@@ -95,26 +103,26 @@ def print_heading(heading):
     print()
 
 
-def print_predictions_by_day(klass, exponential):
+def print_predictions_by_day(klass):
     print_heading(f"{klass.__name__}, growth rate = {klass.rates()[-1]:.2f}")
     prediction = None
 
     for days in count():
         previous = prediction
-        prediction = Prediction.predict_class(days, klass, exponential)
+        prediction = Prediction.predict_class(days, klass)
         print(f"{prediction.days:3}  {prediction.date:%b %d}  {prediction.percent:6.2f}%  {prediction.cases:8}")
 
         if is_saturated(prediction, previous):
             break
 
 
-def print_saturation_date_for_growth_rates(klass, exponential):
+def print_saturation_date_for_growth_rates(klass):
     print_heading(f"{klass.__name__}")
 
     for rate in count(klass.rates()[-1], -0.01):
         if rate < 1.01:
             break
-        prediction = predict_saturation(klass, rate, exponential)
+        prediction = predict_saturation(klass, rate)
         print(f"{rate:.2f}  |  {prediction.days:4} days  |  {prediction.date:%b %d %Y}  {prediction.percent:6.2f}%  {prediction.cases:8}")
 
 
@@ -135,12 +143,14 @@ def rates():
 @main.command()
 @click.option("--exponential", is_flag=True)
 def prediction(exponential):
+    options.exponential = exponential
     for population in populations:
-        print_predictions_by_day(population, exponential)
+        print_predictions_by_day(population)
 
 
 @main.command()
 @click.option("--exponential", is_flag=True)
 def saturation(exponential):
+    options.exponential = exponential
     for population in populations:
-        print_saturation_date_for_growth_rates(population, exponential)
+        print_saturation_date_for_growth_rates(population)
