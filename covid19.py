@@ -76,9 +76,9 @@ class Prediction:
 
     @classmethod
     def predict(cls, days, cases, rate, population):
+        date = last_updated + datetime.timedelta(days=days)
         cases = predict(days, cases, rate, population)
         percent = min(100, 100 * cases / population)
-        date = last_updated + datetime.timedelta(days=days)
         return cls(days, date, cases, percent)
 
     @classmethod
