@@ -7,7 +7,7 @@ import click
 
 
 last_updated = datetime.date.fromisoformat("2020-03-14")
-eta = 0.01
+eta = 0.0001
 
 
 @dataclass
@@ -54,7 +54,7 @@ populations = Berlin, Germany
 
 
 def predict_once(cases, rate, population):
-    return int(cases * rate * (1 - (cases / population)))
+    return int(cases * (1 + (rate - 1) * (1 - (cases / population))))
 
 
 def predict(days, cases, rate, population):
