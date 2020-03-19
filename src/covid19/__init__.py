@@ -5,8 +5,9 @@ import statistics
 
 import click
 
+from . import data
 
-last_updated = datetime.date.fromisoformat("2020-03-14")
+
 eta = 0.0001
 
 
@@ -22,35 +23,11 @@ def to_rates(cases):
     return [(y / x) for x, y in zip(cases, cases[1:])]
 
 
-class Population:
-    @classmethod
-    def rates(cls):
-        return to_rates(cls.cases)
-
-    @classmethod
-    def rate(cls):
-        return (
-            statistics.geometric_mean(cls.rates()[-5:])
-            if options.geometric_mean
-            else cls.rates()[-1]
-        )
-
-
-# fmt: off
-class Berlin(Population):
-    population = 3_700_000
-    start = datetime.date.fromisoformat("2020-03-02")
-    cases = [1, 3, 6, 9, 15, 24, 28, 40, 48, 90, 137, 174, 216, 265, 300, 345, 391]
-
-
-class Germany(Population):
-    population = 82_900_000
-    start = datetime.date.fromisoformat("2020-02-24")
-    cases = [16, 18, 21, 26, 53, 66, 117, 150, 188, 242, 354, 534, 684, 847, 1112, 1460, 1884, 2369, 3062, 3795, 4838, 6012, 7156, 8198]
-
-
-# fmt: on
-populations = Berlin, Germany
+def growth_rate(population):
+    rates = to_rates(population.cases)
+    return (
+        statistics.geometric_mean(rates[-5:]) if options.geometric_mean else rates[-1]
+    )
 
 
 def predict_once(cases, rate, population):
@@ -76,14 +53,16 @@ class Prediction:
 
     @classmethod
     def predict(cls, days, cases, rate, population):
-        date = last_updated + datetime.timedelta(days=days)
+        date = data.last_updated + datetime.timedelta(days=days)
         cases = predict(days, cases, rate, population)
         percent = min(100, 100 * cases / population)
         return cls(days, date, cases, percent)
 
     @classmethod
     def predict_class(cls, days, klass):
-        return cls.predict(days, klass.cases[-1], klass.rate(), klass.population)
+        return cls.predict(
+            days, klass.cases[-1], growth_rate(klass), klass.population
+        )
 
 
 def is_saturated(prediction, previous):
@@ -115,7 +94,7 @@ def print_heading(heading):
 
 
 def print_predictions_by_day(klass):
-    print_heading(f"{klass.__name__}, growth rate = {klass.rate():.2f}")
+    print_heading(f"{klass.__name__}, growth rate = {growth_rate(klass):.2f}")
     prediction = None
 
     for days in count():
@@ -132,7 +111,7 @@ def print_predictions_by_day(klass):
 def print_saturation_date_for_growth_rates(klass):
     print_heading(f"{klass.__name__}")
 
-    for rate in count(klass.rate(), -0.01):
+    for rate in count(growth_rate(klass), -0.01):
         if rate < 1.01:
             break
         prediction = predict_saturation(klass, rate)
@@ -148,9 +127,9 @@ def main():
 
 @main.command()
 def rates():
-    for population in populations:
+    for population in data.populations:
         print_heading(population.__name__)
-        for rate in population.rates():
+        for rate in to_rates(population.cases):
             print(f"{rate:.2f}", end=" ")
         print()
 
@@ -161,7 +140,7 @@ def rates():
 def prediction(geometric_mean, exponential):
     options.geometric_mean = geometric_mean
     options.exponential = exponential
-    for population in populations:
+    for population in data.populations:
         print_predictions_by_day(population)
 
 
@@ -171,5 +150,5 @@ def prediction(geometric_mean, exponential):
 def saturation(geometric_mean, exponential):
     options.geometric_mean = geometric_mean
     options.exponential = exponential
-    for population in populations:
+    for population in data.populations:
         print_saturation_date_for_growth_rates(population)
