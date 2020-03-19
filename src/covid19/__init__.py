@@ -1,6 +1,6 @@
 import click
 
-from . import data, simple
+from . import simple
 
 
 @click.group()
@@ -10,28 +10,18 @@ def main():
 
 @main.command()
 def rates():
-    for population in data.populations:
-        simple.print_heading(population.__name__)
-        for rate in simple.to_rates(population.cases):
-            print(f"{rate:.2f}", end=" ")
-        print()
+    simple.print_rates()
 
 
 @main.command()
 @click.option("--geometric-mean/--no-geometric-mean", default=True)
 @click.option("--exponential", is_flag=True)
 def prediction(geometric_mean, exponential):
-    simple.options.geometric_mean = geometric_mean
-    simple.options.exponential = exponential
-    for population in data.populations:
-        simple.print_predictions_by_day(population)
+    simple.print_predictions(geometric_mean, exponential)
 
 
 @main.command()
 @click.option("--geometric-mean/--no-geometric-mean", default=True)
 @click.option("--exponential", is_flag=True)
 def saturation(geometric_mean, exponential):
-    simple.options.geometric_mean = geometric_mean
-    simple.options.exponential = exponential
-    for population in data.populations:
-        simple.print_saturation_date_for_growth_rates(population)
+    simple.print_saturation_dates(geometric_mean, exponential)

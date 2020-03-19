@@ -114,3 +114,25 @@ def print_saturation_date_for_growth_rates(klass):
         print(
             f"{rate:.2f}  |  {prediction.days:4} days  |  {prediction.date:%b %d %Y}  {prediction.percent:6.2f}%  {prediction.cases:8}"
         )
+
+
+def print_rates():
+    for population in data.populations:
+        print_heading(population.__name__)
+        for rate in to_rates(population.cases):
+            print(f"{rate:.2f}", end=" ")
+        print()
+
+
+def print_predictions(geometric_mean: bool, exponential: bool):
+    options.geometric_mean = geometric_mean
+    options.exponential = exponential
+    for population in data.populations:
+        print_predictions_by_day(population)
+
+
+def print_saturation_dates(geometric_mean: bool, exponential: bool):
+    options.geometric_mean = geometric_mean
+    options.exponential = exponential
+    for population in data.populations:
+        print_saturation_date_for_growth_rates(population)
