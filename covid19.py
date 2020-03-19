@@ -156,7 +156,7 @@ def rates():
 
 
 @main.command()
-@click.option("--geometric-mean", is_flag=True)
+@click.option("--geometric-mean/--no-geometric-mean", default=True)
 @click.option("--exponential", is_flag=True)
 def prediction(geometric_mean, exponential):
     options.geometric_mean = geometric_mean
@@ -166,7 +166,7 @@ def prediction(geometric_mean, exponential):
 
 
 @main.command()
-@click.option("--geometric-mean", is_flag=True)
+@click.option("--geometric-mean/--no-geometric-mean", default=True)
 @click.option("--exponential", is_flag=True)
 def saturation(geometric_mean, exponential):
     options.geometric_mean = geometric_mean
