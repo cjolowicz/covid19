@@ -1,2 +1,2 @@
 from .main import main
-from . import rates, simulate
+from . import plot, rates, simulate
