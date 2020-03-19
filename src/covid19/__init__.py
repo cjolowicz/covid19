@@ -10,7 +10,7 @@ def main():
 
 @main.command()
 def rates():
-    simple.print_rates()
+    simulation.print_rates()
 
 
 @main.command()

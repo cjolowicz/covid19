@@ -108,6 +108,15 @@ def print_predictions(population):
         print(prediction)
 
 
+def print_rates():
+    for population in data.populations:
+        print_heading(population.__name__)
+        for days, (previous, value) in enumerate(pairwise(population.cases)):
+            date = population.start + datetime.timedelta(days=days)
+            rate = value / previous
+            print(f"{date:%b %d %Y}  {100 * rate:.2f}%")
+
+
 def run():
     for population in data.populations:
         print_predictions(population)
