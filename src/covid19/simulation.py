@@ -1,12 +1,5 @@
-from dataclasses import dataclass
-import datetime
-from itertools import chain, count
 from statistics import geometric_mean
-from typing import Iterator, List, Sequence
-
-from more_itertools import difference, pairwise
-
-from . import data
+from typing import Iterator, List
 
 
 average_case_duration = 14
@@ -56,80 +49,3 @@ class Simulation:
         """Predict infections, day by day."""
         while True:
             yield self.step()
-
-
-eta = 0.0001
-
-
-def converge(sequence: Sequence[int]) -> Iterator[int]:
-    for previous, value in pairwise(chain([0], sequence)):
-        if previous > 0 and abs(1 - value / previous) < eta:
-            break
-        yield value
-
-
-def simulate(population: data.Population):
-    simulation = Simulation(population.population)
-    for infections in difference(population.cases):
-        yield simulation.feed(infections)
-
-    yield from converge(simulation.run())
-
-
-@dataclass
-class Prediction:
-    days: int
-    date: datetime.date
-    cases: int
-    infestation: float
-
-    @classmethod
-    def create(cls, days: int, population, cases: int):
-        date = population.start + datetime.timedelta(days=days)
-        infestation = min(100, 100 * cases / population.population)
-        return cls(days, date, cases, infestation)
-
-    def __str__(self):
-        return f"{self.days:3}  {self.date:%b %d %Y}  {self.infestation:6.2f}%  {self.cases:8}"
-
-
-def print_heading(heading):
-    print()
-    print(heading)
-    print("=" * len(heading))
-    print()
-
-
-def print_predictions(population: data.Population):
-    print_heading(population.name)
-
-    for days, cases in enumerate(simulate(population)):
-        prediction = Prediction.create(days, population, cases)
-        print(prediction)
-
-
-def _print_rates(population: data.Population, recovery: bool) -> None:
-    print_heading(population.name)
-
-    if recovery:
-        simulation = Simulation(population.population)
-        cases = [
-            simulation.feed(infections) for infections in difference(population.cases)
-        ]
-    else:
-        cases = population.cases
-
-    for days, (previous, value) in enumerate(pairwise(cases)):
-        date = population.start + datetime.timedelta(days=days)
-        rate = value / previous
-        print(f"{date:%b %d %Y}  {100 * rate:.2f}%")
-
-
-def print_rates(recovery: bool):
-    for population in data.populations:
-        _print_rates(population, recovery)
-
-
-def run():
-    for population in data.populations:
-        print_predictions(population)

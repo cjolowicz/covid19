@@ -3,9 +3,6 @@ import datetime
 from typing import List
 
 
-last_updated = datetime.date.fromisoformat("2020-03-18")
-
-
 @dataclass
 class Population:
     name: str
