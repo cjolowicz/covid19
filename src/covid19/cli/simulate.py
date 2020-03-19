@@ -1,7 +1,9 @@
 import dataclasses
-from typing import Dict
+import datetime
+from typing import Any, Dict
 
 import click
+import humanize
 from tabulate import tabulate
 
 from .main import main
@@ -10,23 +12,37 @@ from .. import simulation
 from ..data import Population, populations
 
 
+headers = [
+    "days",
+    "date",
+    "accumulated_infections",
+    "cases",
+    "infections",
+    "recoveries",
+    "probability",
+    "infestation",
+]
+
+
+def format_state(state: simulation.State) -> Dict[str, str]:
+    result = dataclasses.asdict(state)
+    for key, value in result.items():
+        if isinstance(value, int):
+            result[key] = humanize.intcomma(value)
+        elif isinstance(value, float):
+            result[key] = f"{100 * result[key]:.2f}%"
+        elif isinstance(value, datetime.date):
+            result[key] = humanize.naturaldate(value)
+    return result
+
+
 def print_predictions(population: Population) -> None:
     print_heading(population.name)
 
-    headers = [
-        "days",
-        "date",
-        "accumulated_infections",
-        "infestation",
-        "cases",
-        "recoveries",
-        "probability",
-        "infections",
-    ]
-    states = [dataclasses.asdict(state) for state in simulation.simulate(population)]
+    states = [format_state(state) for state in simulation.simulate(population)]
     table = [[state[header] for header in headers] for state in states]
 
-    print(tabulate(table, headers, floatfmt=".2f"))
+    print(tabulate(table, headers, stralign="right"))
 
 
 @main.command()
