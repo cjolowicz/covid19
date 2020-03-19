@@ -8,6 +8,17 @@ version = "7.1.1"
 
 [[package]]
 category = "main"
+description = "Python humanize utilities"
+name = "humanize"
+optional = false
+python-versions = ">=3.5"
+version = "2.0.0"
+
+[package.extras]
+tests = ["freezegun", "pytest", "pytest-cov"]
+
+[[package]]
+category = "main"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
@@ -26,13 +37,17 @@ version = "0.8.6"
 widechars = ["wcwidth"]
 
 [metadata]
-content-hash = "e4d4789da2f8fa91df9fbb7a0de4296920a022a6aeb85d42ffbce55468b169cd"
+content-hash = "f846c789ae9bba401629c4e582cbe03cae33442e5e9448cea7a9c9888256af3b"
 python-versions = "^3.8"
 
 [metadata.files]
 click = [
     {file = "click-7.1.1-py2.py3-none-any.whl", hash = "sha256:e345d143d80bf5ee7534056164e5e112ea5e22716bbb1ce727941f4c8b471b9a"},
     {file = "click-7.1.1.tar.gz", hash = "sha256:8a18b4ea89d8820c5d0c7da8a64b2c324b4dabb695804dbfea19b9be9d88c0cc"},
+]
+humanize = [
+    {file = "humanize-2.0.0-py3-none-any.whl", hash = "sha256:50423d4264ae51b660087a9b8fc26aa5b93319b26fa6430fc63facb7befd2e1e"},
+    {file = "humanize-2.0.0.tar.gz", hash = "sha256:1766e8b82772abdf54a0b3620b14b21b36feba5160401838f97d18a4c58c7f71"},
 ]
 more-itertools = [
     {file = "more-itertools-8.2.0.tar.gz", hash = "sha256:b1ddb932186d8a6ac451e1d95844b382f55e12686d51ca0c68b6f61f2ab7a507"},
