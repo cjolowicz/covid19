@@ -101,7 +101,7 @@ def print_heading(heading):
 
 
 def print_predictions(population):
-    print_heading(f"{population.__name__}")
+    print_heading(population.__name__)
 
     for days, cases in enumerate(simulate(population)):
         prediction = Prediction.create(days, population, cases)
