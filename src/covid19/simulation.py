@@ -108,13 +108,26 @@ def print_predictions(population: data.Population):
         print(prediction)
 
 
-def print_rates():
+def _print_rates(population: data.Population, recovery: bool) -> None:
+    print_heading(population.name)
+
+    if recovery:
+        simulation = Simulation(population.population)
+        cases = [
+            simulation.feed(infections) for infections in difference(population.cases)
+        ]
+    else:
+        cases = population.cases
+
+    for days, (previous, value) in enumerate(pairwise(cases)):
+        date = population.start + datetime.timedelta(days=days)
+        rate = value / previous
+        print(f"{date:%b %d %Y}  {100 * rate:.2f}%")
+
+
+def print_rates(recovery: bool):
     for population in data.populations:
-        print_heading(population.name)
-        for days, (previous, value) in enumerate(pairwise(population.cases)):
-            date = population.start + datetime.timedelta(days=days)
-            rate = value / previous
-            print(f"{date:%b %d %Y}  {100 * rate:.2f}%")
+        _print_rates(population, recovery)
 
 
 def run():

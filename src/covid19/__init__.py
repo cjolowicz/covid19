@@ -9,8 +9,9 @@ def main():
 
 
 @main.command()
-def rates():
-    simulation.print_rates()
+@click.option("--recovery/--no-recovery")
+def rates(recovery: bool):
+    simulation.print_rates(recovery)
 
 
 @main.command()
