@@ -23,6 +23,8 @@ headers = [
     "recoveries%",
     "cases",
     "cases%",
+    "immune",
+    "immune%",
 ]
 
 
@@ -35,6 +37,7 @@ def format_state(
     result["infections%"] = state.infections / population.population
     result["recoveries%"] = state.recoveries / population.population
     result["cases%"] = state.cases / population.population
+    result["immune%"] = state.immune / population.population
 
     for key, value in result.items():
         if isinstance(value, int):

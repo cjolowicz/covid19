@@ -19,6 +19,7 @@ class State:
     infections: int = 0
     recoveries: int = 0
     cases: int = 0
+    immune: int = 0
     probability: float = 0.0
 
     def update(self, infections: int, recoveries: int) -> None:
@@ -27,6 +28,7 @@ class State:
         state.infections = infections
         state.recoveries = recoveries
         state.cases += infections - recoveries
+        state.immune += recoveries
         return state
 
 
@@ -57,9 +59,12 @@ class Simulation:
 
     def step(self) -> State:
         """Predict infections for a single day."""
+        immunization: float = self.state.immune / self.population
         infestation: float = self.state.cases / self.population
         infections: int = int(
-            self.state.cases * self.state.probability * (1 - infestation)
+            self.state.cases
+            * self.state.probability
+            * (1 - (infestation + immunization))
         )
         recoveries: int = self.window.pop(0)
         self.state = self.state.update(infections, recoveries)
@@ -75,7 +80,9 @@ class Simulation:
 
 def converge(sequence: Sequence[State]) -> Iterator[State]:
     for previous, state in pairwise(chain([None], sequence)):
-        if previous is not None and abs(1 - state.cases / previous.cases) < ETA:
+        if previous is not None and (
+            previous.cases == 0 or abs(1 - state.cases / previous.cases) < ETA
+        ):
             break
         yield state
 
