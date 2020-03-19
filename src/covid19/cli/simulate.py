@@ -8,7 +8,7 @@ import humanize
 from tabulate import tabulate
 
 from .main import main
-from .utils import print_heading
+from .utils import heading
 from .. import simulation
 from ..data import Population, populations
 
@@ -52,8 +52,6 @@ def format_state(
 
 
 def print_predictions(population: Population) -> None:
-    print_heading(population.name)
-
     states = list(simulation.simulate(population))
     rows = [
         format_state(state, population, accumulated_infections)
@@ -63,6 +61,8 @@ def print_predictions(population: Population) -> None:
     ]
     table = tabulate(rows, headers, stralign="right")
     text = f"""\
+{heading(population.name)}
+
 population = {humanize.intcomma(population.population)}
 p = {states[-1].probability:.2f}
 

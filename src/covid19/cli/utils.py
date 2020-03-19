@@ -1,5 +1,2 @@
-def print_heading(heading: str) -> None:
-    print()
-    print(heading)
-    print("=" * len(heading))
-    print()
+def heading(text: str) -> str:
+    return "\n".join((text, "=" * len(text)))

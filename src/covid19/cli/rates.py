@@ -4,13 +4,15 @@ import click
 from more_itertools import difference, pairwise
 
 from .main import main
-from .utils import print_heading
+from .utils import heading
 from ..data import Population, populations
 from ..simulation import Simulation
 
 
 def print_rates(population: Population, recovery: bool) -> None:
-    print_heading(population.name)
+    print()
+    print(heading(population.name))
+    print()
 
     if recovery:
         simulation = Simulation(population.population)
