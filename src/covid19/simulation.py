@@ -10,9 +10,9 @@ from .data import Population
 
 
 DAY = datetime.timedelta(days=1)
-
-average_case_duration = 14
-probability_window_size = 5
+ETA = 0.0001
+AVERAGE_CASE_DURATION = 14
+PROBABILITY_WINDOW_SIZE = 5
 
 
 @dataclass
@@ -47,8 +47,8 @@ class Simulation:
 
     def __init__(self, population: Population) -> None:
         self.state: State = State.create(population)
-        self.window: List[int] = [0] * average_case_duration
-        self.probability_window: List[int] = [0] * probability_window_size
+        self.window: List[int] = [0] * AVERAGE_CASE_DURATION
+        self.probability_window: List[int] = [0] * PROBABILITY_WINDOW_SIZE
 
     def feed(self, infections: int) -> State:
         """Add observed infections for a single day."""
@@ -83,12 +83,9 @@ class Simulation:
             yield self.step()
 
 
-eta: float = 0.0001
-
-
 def converge(sequence: Sequence[State]) -> Iterator[State]:
     for previous, state in pairwise(chain([None], sequence)):
-        if previous is not None and abs(1 - state.cases / previous.cases) < eta:
+        if previous is not None and abs(1 - state.cases / previous.cases) < ETA:
             break
         yield state
 
