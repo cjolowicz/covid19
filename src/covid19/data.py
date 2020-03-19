@@ -15,7 +15,7 @@ berlin = Population(
     name="Berlin",
     population=3_700_000,
     start=datetime.date.fromisoformat("2020-03-02"),
-    cases=[1, 3, 6, 9, 15, 24, 28, 40, 48, 90, 137, 174, 216, 265, 300, 345, 391],
+    cases=[1, 3, 6, 9, 15, 24, 28, 40, 48, 90, 137, 174, 216, 265, 300, 345, 391, 573],
 )
 
 germany = Population(
@@ -47,6 +47,7 @@ germany = Population(
         6012,
         7156,
         8198,
+        10999,
     ],
 )
 
