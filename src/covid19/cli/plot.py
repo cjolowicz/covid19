@@ -12,14 +12,20 @@ def plot_predictions(population: Population) -> None:
         return 100 * value / population.population
 
     states = list(simulation.simulate(population))
-    plt.plot([percentage(state.cases) for state in states])
-    plt.plot([percentage(state.immune) for state in states])
-    plt.plot([percentage(state.infections) for state in states])
-    plt.plot([percentage(state.recoveries) for state in states])
-    plt.show()
+    plt.title(population.name)
+    plt.xlabel("days")
+    plt.ylabel("% of population")
+    plt.grid(True)
+    plt.plot([percentage(state.cases) for state in states], label="cases")
+    plt.plot([percentage(state.immune) for state in states], label="immune")
+    plt.plot([percentage(state.infections) for state in states], label="infections")
+    plt.plot([percentage(state.recoveries) for state in states], label="recoveries")
+    plt.legend()
 
 
 @main.command()
 def plot():
-    for population in populations:
+    for index, population in enumerate(populations):
+        plt.subplot(311 + index * 2)
         plot_predictions(population)
+    plt.show()
