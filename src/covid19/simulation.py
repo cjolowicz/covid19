@@ -1,5 +1,4 @@
 from dataclasses import dataclass, replace
-import datetime
 from itertools import chain
 from statistics import geometric_mean
 from typing import Iterator, List, Sequence
@@ -9,7 +8,6 @@ from more_itertools import difference, pairwise
 from .data import Population
 
 
-DAY = datetime.timedelta(days=1)
 ETA = 0.0001
 AVERAGE_CASE_DURATION = 14
 PROBABILITY_WINDOW_SIZE = 5
@@ -17,36 +15,27 @@ PROBABILITY_WINDOW_SIZE = 5
 
 @dataclass
 class State:
-    population: int
-    date: datetime.date
     days: int = 0
     infections: int = 0
-    accumulated_infections: int = 0
     recoveries: int = 0
     cases: int = 0
-    infestation: float = 0.0
     probability: float = 0.0
 
-    @classmethod
-    def create(cls, population: Population) -> "State":
-        return cls(population.population, population.start - DAY)
-
-    def update(self, infections: int, recoveries: int) -> "State":
+    def update(self, infections: int, recoveries: int) -> None:
         state = replace(self)
-        state.date += DAY
         state.days += 1
         state.infections = infections
-        state.accumulated_infections += infections
         state.recoveries = recoveries
         state.cases += infections - recoveries
-        state.infestation = state.cases / state.population
         return state
+
 
 class Simulation:
     """Simulation to predict infections."""
 
-    def __init__(self, population: Population) -> None:
-        self.state: State = State.create(population)
+    def __init__(self, population: int) -> None:
+        self.population = population
+        self.state = State()
         self.window: List[int] = [0] * AVERAGE_CASE_DURATION
         self.probability_window: List[int] = [0] * PROBABILITY_WINDOW_SIZE
 
@@ -68,8 +57,9 @@ class Simulation:
 
     def step(self) -> State:
         """Predict infections for a single day."""
+        infestation: float = self.state.cases / self.population
         infections: int = int(
-            self.state.cases * self.state.probability * (1 - self.state.infestation)
+            self.state.cases * self.state.probability * (1 - infestation)
         )
         recoveries: int = self.window.pop(0)
         self.state = self.state.update(infections, recoveries)
@@ -91,7 +81,7 @@ def converge(sequence: Sequence[State]) -> Iterator[State]:
 
 
 def simulate(population: Population) -> Iterator[State]:
-    simulation = Simulation(population)
+    simulation = Simulation(population.population)
     for infections in difference(population.cases):
         yield simulation.feed(infections)
 
