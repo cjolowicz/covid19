@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import datetime
 from itertools import chain
 from statistics import geometric_mean
@@ -8,6 +8,8 @@ from more_itertools import difference, pairwise
 
 from .data import Population
 
+
+DAY = datetime.timedelta(days=1)
 
 average_case_duration = 14
 probability_window_size = 5
@@ -26,20 +28,19 @@ class State:
     probability: float = 0.0
 
     @classmethod
-    def create(cls, population: Population):
-        return cls(
-            population.population, population.start - datetime.timedelta(days=-1)
-        )
+    def create(cls, population: Population) -> "State":
+        return cls(population.population, population.start - DAY)
 
-    def update(self, infections, recoveries):
-        self.date = self.date + datetime.timedelta(days=1)
-        self.days += 1
-        self.infections = infections
-        self.accumulated_infections += infections
-        self.recoveries = recoveries
-        self.cases += infections - recoveries
-        self.infestation = self.cases / self.population
-
+    def update(self, infections: int, recoveries: int) -> "State":
+        state = replace(self)
+        state.date += DAY
+        state.days += 1
+        state.infections = infections
+        state.accumulated_infections += infections
+        state.recoveries = recoveries
+        state.cases += infections - recoveries
+        state.infestation = state.cases / state.population
+        return state
 
 class Simulation:
     """Simulation to predict infections."""
@@ -53,7 +54,7 @@ class Simulation:
         """Add observed infections for a single day."""
         self.update_probability(infections)
         recoveries = self.window.pop(0)
-        self.state.update(infections, recoveries)
+        self.state = self.state.update(infections, recoveries)
         self.window.append(infections)
 
         return self.state
@@ -71,7 +72,7 @@ class Simulation:
             self.state.cases * self.state.probability * (1 - self.state.infestation)
         )
         recoveries: int = self.window.pop(0)
-        self.state.update(infections, recoveries)
+        self.state = self.state.update(infections, recoveries)
         self.window.append(infections)
 
         return self.state
