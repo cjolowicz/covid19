@@ -1,6 +1,6 @@
 import click
 
-from . import simple
+from . import simple, simulation
 
 
 @click.group()
@@ -25,3 +25,8 @@ def prediction(geometric_mean, exponential):
 @click.option("--exponential", is_flag=True)
 def saturation(geometric_mean, exponential):
     simple.print_saturation_dates(geometric_mean, exponential)
+
+
+@main.command()
+def simulate():
+    simulation.run()
