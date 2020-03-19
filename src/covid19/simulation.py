@@ -68,7 +68,7 @@ def converge(sequence: Sequence[int]) -> Iterator[int]:
         yield value
 
 
-def simulate(population):
+def simulate(population: data.Population):
     simulation = Simulation(population.population)
     for infections in difference(population.cases):
         yield simulation.feed(infections)
@@ -100,8 +100,8 @@ def print_heading(heading):
     print()
 
 
-def print_predictions(population):
-    print_heading(population.__name__)
+def print_predictions(population: data.Population):
+    print_heading(population.name)
 
     for days, cases in enumerate(simulate(population)):
         prediction = Prediction.create(days, population, cases)
@@ -110,7 +110,7 @@ def print_predictions(population):
 
 def print_rates():
     for population in data.populations:
-        print_heading(population.__name__)
+        print_heading(population.name)
         for days, (previous, value) in enumerate(pairwise(population.cases)):
             date = population.start + datetime.timedelta(days=days)
             rate = value / previous

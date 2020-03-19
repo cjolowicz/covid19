@@ -1,37 +1,31 @@
+from dataclasses import dataclass
 import datetime
+from typing import List
 
 
 last_updated = datetime.date.fromisoformat("2020-03-18")
 
 
-class Berlin:
-    population = 3_700_000
-    start = datetime.date.fromisoformat("2020-03-02")
-    cases = [
-        1,
-        3,
-        6,
-        9,
-        15,
-        24,
-        28,
-        40,
-        48,
-        90,
-        137,
-        174,
-        216,
-        265,
-        300,
-        345,
-        391,
-    ]
+@dataclass
+class Population:
+    name: str
+    population: int
+    start: datetime.date
+    cases: List[int]
 
 
-class Germany:
-    population = 82_900_000
-    start = datetime.date.fromisoformat("2020-02-24")
-    cases = [
+berlin = Population(
+    name="Berlin",
+    population=3_700_000,
+    start=datetime.date.fromisoformat("2020-03-02"),
+    cases=[1, 3, 6, 9, 15, 24, 28, 40, 48, 90, 137, 174, 216, 265, 300, 345, 391],
+)
+
+germany = Population(
+    name="Germany",
+    population=82_900_000,
+    start=datetime.date.fromisoformat("2020-02-24"),
+    cases=[
         16,
         18,
         21,
@@ -56,7 +50,7 @@ class Germany:
         6012,
         7156,
         8198,
-    ]
+    ],
+)
 
-
-populations = Berlin, Germany
+populations = berlin, germany
