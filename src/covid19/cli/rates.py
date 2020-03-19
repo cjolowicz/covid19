@@ -15,7 +15,8 @@ def print_rates(population: Population, recovery: bool) -> None:
     if recovery:
         simulation = Simulation(population.population)
         cases = [
-            simulation.feed(infections) for infections in difference(population.cases)
+            simulation.feed(infections).cases
+            for infections in difference(population.cases)
         ]
     else:
         cases = population.cases
