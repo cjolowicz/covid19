@@ -22,30 +22,33 @@ class State:
     immune: int = 0
     probability: float = 0.0
 
-    def update(self, infections: int, recoveries: int) -> None:
+    def update(
+        self, infections: int, recoveries: int, with_immunity: bool = True
+    ) -> None:
         state = replace(self)
         state.days += 1
         state.infections = infections
         state.recoveries = recoveries
         state.cases += infections - recoveries
-        state.immune += recoveries
+        state.immune += recoveries if with_immunity else 0
         return state
 
 
 class Simulation:
     """Simulation to predict infections."""
 
-    def __init__(self, population: int) -> None:
+    def __init__(self, population: int, with_immunity: bool = True) -> None:
         self.population = population
         self.state = State()
         self.window: List[int] = [0] * AVERAGE_CASE_DURATION
         self.probability_window: List[int] = [0] * PROBABILITY_WINDOW_SIZE
+        self.with_immunity = with_immunity
 
     def feed(self, infections: int) -> State:
         """Add observed infections for a single day."""
         self.update_probability(infections)
         recoveries = self.window.pop(0)
-        self.state = self.state.update(infections, recoveries)
+        self.state = self.state.update(infections, recoveries, self.with_immunity)
         self.window.append(infections)
 
         return self.state
@@ -67,7 +70,7 @@ class Simulation:
             * (1 - (infestation + immunization))
         )
         recoveries: int = self.window.pop(0)
-        self.state = self.state.update(infections, recoveries)
+        self.state = self.state.update(infections, recoveries, self.with_immunity)
         self.window.append(infections)
 
         return self.state
@@ -87,8 +90,8 @@ def converge(sequence: Sequence[State]) -> Iterator[State]:
         yield state
 
 
-def simulate(population: Population) -> Iterator[State]:
-    simulation = Simulation(population.population)
+def simulate(population: Population, with_immunity: bool = True) -> Iterator[State]:
+    simulation = Simulation(population.population, with_immunity)
     for infections in difference(population.cases):
         yield simulation.feed(infections)
 

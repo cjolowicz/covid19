@@ -7,11 +7,11 @@ from ..data import Population, populations
 from .. import simulation
 
 
-def plot_predictions(population: Population) -> None:
+def plot_predictions(population: Population, with_immunity: bool) -> None:
     def percentage(value):
         return 100 * value / population.population
 
-    states = list(simulation.simulate(population))
+    states = list(simulation.simulate(population, with_immunity))
     plt.title(population.name)
     plt.xlabel("days")
     plt.ylabel("% of population")
@@ -24,8 +24,9 @@ def plot_predictions(population: Population) -> None:
 
 
 @main.command()
-def plot():
+@click.option("--immunity/--no-immunity", "with_immunity", default=True)
+def plot(with_immunity: bool):
     for index, population in enumerate(populations):
         plt.subplot(311 + index * 2)
-        plot_predictions(population)
+        plot_predictions(population, with_immunity)
     plt.show()

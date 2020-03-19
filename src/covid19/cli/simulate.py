@@ -54,8 +54,8 @@ def format_state(
     return [result[header] for header in headers]
 
 
-def print_predictions(population: Population) -> None:
-    states = list(simulation.simulate(population))
+def print_predictions(population: Population, with_immunity: bool) -> None:
+    states = list(simulation.simulate(population, with_immunity))
     rows = [
         format_state(state, population, accumulated_infections)
         for state, accumulated_infections in zip(
@@ -67,6 +67,7 @@ def print_predictions(population: Population) -> None:
 {heading(population.name)}
 
 population = {humanize.intcomma(population.population)}
+immunity = {"yes" if with_immunity else "no"}
 p = {states[-1].probability:.2f}
 
 {table}
@@ -75,6 +76,7 @@ p = {states[-1].probability:.2f}
 
 
 @main.command()
-def simulate():
+@click.option("--immunity/--no-immunity", "with_immunity", default=True)
+def simulate(with_immunity: bool):
     for population in populations:
-        print_predictions(population)
+        print_predictions(population, with_immunity)
