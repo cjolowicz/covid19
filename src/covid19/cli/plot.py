@@ -71,6 +71,9 @@ daily predictions based on data from RKI
     plt.ylabel("% of population")
     plt.ylim(bottom=-5, top=105)
     plt.grid(True)
+    text = plt.figtext(
+        0.99, 0.01, "https://github.com/cjolowicz/covid19", horizontalalignment="right"
+    )
 
     set_aspect_ratio(0.4)
 
@@ -87,6 +90,8 @@ daily predictions based on data from RKI
         plt.show()
     else:
         plt.savefig(output)
+
+    text.remove()
 
 
 @main.command()
