@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 import click
 
 from .main import main
-from ..data import Population, populations
-from .. import simulation
+from .. import data, simulation
 
 
-def plot_predictions(population: Population, with_immunity: bool) -> None:
+def plot_predictions(population: data.Population, with_immunity: bool) -> None:
     def percentage(value):
         return 100 * value / population.population
 
@@ -21,12 +20,17 @@ def plot_predictions(population: Population, with_immunity: bool) -> None:
     plt.plot([percentage(state.infections) for state in states], label="infections")
     plt.plot([percentage(state.recoveries) for state in states], label="recoveries")
     plt.legend()
+    plt.show()
 
 
 @main.command()
+@click.option(
+    "--population",
+    "-p",
+    default="Germany",
+    type=click.Choice([population.name for population in data.populations]),
+)
 @click.option("--immunity/--no-immunity", "with_immunity", default=True)
-def plot(with_immunity: bool):
-    for index, population in enumerate(populations):
-        plt.subplot(311 + index * 2)
-        plot_predictions(population, with_immunity)
-    plt.show()
+def plot(population: str, with_immunity: bool):
+    _population: data.Population = data.find(population)
+    plot_predictions(_population, with_immunity)
