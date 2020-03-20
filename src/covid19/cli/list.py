@@ -74,7 +74,7 @@ p = {states[-1].probability:.2f}
     print(text)
 
 
-@main.command()
+@main.command("list")
 @click.option(
     "--population",
     "-p",
@@ -82,6 +82,6 @@ p = {states[-1].probability:.2f}
     type=click.Choice([population.name for population in data.populations]),
 )
 @click.option("--immunity/--no-immunity", "with_immunity", default=True)
-def simulate(population: str, with_immunity: bool):
+def _list(population: str, with_immunity: bool):
     _population: data.Population = data.find(population)
     print_predictions(_population, with_immunity)
