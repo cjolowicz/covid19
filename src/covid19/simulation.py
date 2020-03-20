@@ -1,6 +1,6 @@
 from dataclasses import dataclass, replace
 import datetime
-from itertools import chain
+from itertools import chain, islice
 from statistics import geometric_mean
 from typing import Iterator, List, Sequence
 
@@ -92,7 +92,10 @@ def converge(sequence: Sequence[State]) -> Iterator[State]:
 
 
 def simulate(
-    population: Population, with_immunity: bool = True, version: datetime.date = None
+    population: Population,
+    with_immunity: bool = True,
+    version: datetime.date = None,
+    end: datetime.date = None,
 ) -> Iterator[State]:
     cases = (
         population.cases
@@ -102,5 +105,9 @@ def simulate(
     simulation = Simulation(population.population, with_immunity)
     for infections in difference(cases):
         yield simulation.feed(infections)
+
+    if end is not None:
+        stop = (end - population.start).days + 1
+        yield from islice(simulation.run(), stop)
 
     yield from converge(simulation.run())
