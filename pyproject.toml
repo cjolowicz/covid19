@@ -13,6 +13,7 @@ tabulate = "^0.8.6"
 humanize = "^2.0.0"
 matplotlib = "^3.2.1"
 dateparser = "^0.7.4"
+imageio = "^2.8.0"
 
 [tool.poetry.dev-dependencies]
 
