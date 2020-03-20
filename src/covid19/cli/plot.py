@@ -81,7 +81,9 @@ def plot_predictions(
     "--population",
     "-p",
     default="Germany",
-    type=click.Choice([population.name for population in data.populations]),
+    type=click.Choice(
+        [population.name for population in data.populations], case_sensitive=False
+    ),
 )
 @click.option("--plot-cases/--no-plot-cases", default=True)
 @click.option("--plot-immune/--no-plot-immune", default=False)

@@ -79,7 +79,9 @@ p = {states[-1].probability:.2f}
     "--population",
     "-p",
     default="Germany",
-    type=click.Choice([population.name for population in data.populations]),
+    type=click.Choice(
+        [population.name for population in data.populations], case_sensitive=False
+    ),
 )
 @click.option("--immunity/--no-immunity", "with_immunity", default=True)
 def _list(population: str, with_immunity: bool):

@@ -40,7 +40,9 @@ def create_images(population: data.Population, tempdir: str):
     "-p",
     default="Germany",
     show_default=True,
-    type=click.Choice([population.name for population in data.populations]),
+    type=click.Choice(
+        [population.name for population in data.populations], case_sensitive=False
+    ),
 )
 @click.option(
     "--output", "-o", metavar="FILE", default="covid19.gif", show_default=True,

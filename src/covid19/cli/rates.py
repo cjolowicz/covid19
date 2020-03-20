@@ -47,7 +47,9 @@ def print_rates(population: data.Population, recovery: bool) -> None:
     "--population",
     "-p",
     default="Germany",
-    type=click.Choice([population.name for population in data.populations]),
+    type=click.Choice(
+        [population.name for population in data.populations], case_sensitive=False
+    ),
 )
 @click.option("--recovery/--no-recovery")
 def rates(population: str, recovery: bool):
