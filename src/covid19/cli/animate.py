@@ -20,10 +20,12 @@ def create_image(population: data.Population, tempdir: str, days: int):
     kwargs = dict(version=date, plots=["cases"], output=image, legend=False)
 
     plt.xlim(left=population.start, right=end)
+    line = plt.axvline(x=date, color="tab:gray")
     plot_predictions(population, states, **kwargs)
 
     yield imageio.imread(image)
 
+    line.remove()
     plot_predictions(population, states, color="moccasin", **kwargs)
 
 
