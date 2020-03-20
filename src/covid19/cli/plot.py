@@ -69,7 +69,7 @@ daily predictions based on data from RKI
 
     plt.title(title, fontsize=10)
     plt.ylabel("% of population")
-    plt.ylim(top=100)
+    plt.ylim(bottom=-5, top=105)
     plt.grid(True)
 
     set_aspect_ratio(0.4)
