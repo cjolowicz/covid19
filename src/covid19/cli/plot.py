@@ -10,6 +10,13 @@ from .main import main
 from .. import data, simulation
 
 
+def set_aspect_ratio(ratio):
+    axes = plt.gca()
+    left, right = axes.get_xlim()
+    bottom, top = axes.get_ylim()
+    axes.set_aspect(abs((right - left) / (bottom - top)) * ratio)
+
+
 def plot_predictions(
     population: data.Population,
     states: List[simulation.State],
@@ -60,6 +67,8 @@ def plot_predictions(
     plt.ylabel("% of population")
     plt.ylim(top=100)
     plt.grid(True)
+
+    set_aspect_ratio(0.4)
 
     if legend:
         plt.legend()
