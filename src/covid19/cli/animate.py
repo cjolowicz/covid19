@@ -16,17 +16,22 @@ def create_image(population: data.Population, tempdir: str, days: int):
     date = population.start + datetime.timedelta(days=days)
     end = population.start + datetime.timedelta(days=200)
 
-    states = simulation.simulate(population, version=date, end=end)
+    states = list(simulation.simulate(population, version=date, end=end))
+    kwargs = dict(version=date, plots=["cases"], output=image, legend=False)
 
     plt.xlim(left=population.start, right=end)
+    plot_predictions(population, states, **kwargs)
 
-    plot_predictions(
-        population, list(states), version=date, plots=["cases"], output=image
-    )
+    yield imageio.imread(image)
 
-    plt.close()
+    plot_predictions(population, states, color="moccasin", **kwargs)
 
-    return imageio.imread(image)
+
+def create_images(population: data.Population, tempdir: str):
+    start = max(simulation.PROBABILITY_WINDOW_SIZE, len(population.cases) - 14)
+    stop = len(population.cases)
+    for days in range(start, stop):
+        yield from create_image(population, tempdir, days)
 
 
 @main.command()
@@ -42,11 +47,8 @@ def create_image(population: data.Population, tempdir: str, days: int):
 )
 def animate(population: str, output: str):
     _population: data.Population = data.find(population)
-    start = max(simulation.PROBABILITY_WINDOW_SIZE, len(_population.cases) - 14)
-    stop = len(_population.cases)
 
     with tempfile.TemporaryDirectory() as tempdir:
-        images = [
-            create_image(_population, tempdir, days) for days in range(start, stop)
-        ]
-        imageio.mimwrite(output, images, format="GIF", fps=1, loop=1)
+        images = list(create_images(_population, tempdir))
+        images += images[-1:] * 5
+        imageio.mimwrite(output, images, format="GIF", fps=1.5)

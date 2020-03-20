@@ -16,6 +16,8 @@ def plot_predictions(
     version: Optional[datetime.date],
     plots: List[str],
     output: Optional[str],
+    color: str = "tab:orange",
+    legend: bool = True,
 ) -> None:
     def percentage(value):
         return 100 * value / population.population
@@ -33,7 +35,7 @@ def plot_predictions(
 
     if "cases" in plots:
         plt.plot(
-            dates, cases, label="cases", color="tab:orange",
+            dates, cases, label="cases", color=color,
         )
 
     if "immune" in plots:
@@ -56,7 +58,9 @@ def plot_predictions(
     plt.ylabel("% of population")
     plt.ylim(top=100)
     plt.grid(True)
-    plt.legend()
+
+    if legend:
+        plt.legend()
 
     locator = matplotlib.dates.MonthLocator()
     formatter = matplotlib.dates.DateFormatter("%b")
