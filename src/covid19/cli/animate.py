@@ -14,12 +14,11 @@ from .. import data, simulation
 def create_image(population: data.Population, tempdir: str, days: int):
     image = str(Path(tempdir) / "{days:03}.png")
     date = population.start + datetime.timedelta(days=days)
+    end = population.start + datetime.timedelta(days=200)
 
-    states = simulation.simulate(population, version=date)
+    states = simulation.simulate(population, version=date, end=end)
 
-    plt.xlim(
-        left=population.start, right=population.start + datetime.timedelta(days=200),
-    )
+    plt.xlim(left=population.start, right=end)
 
     plot_predictions(
         population, list(states), version=date, plots=["cases"], output=image
