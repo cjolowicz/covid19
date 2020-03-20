@@ -60,10 +60,14 @@ def plot_predictions(
             dates, recoveries, label="recoveries", color="tab:green",
         )
 
-    plt.suptitle(f"COVID-19 simulation for {population.name}", fontsize=14)
-    plt.title(
-        f"daily predictions based on data from RKI: {version:%b %d, %Y}", fontsize=10
-    )
+    title = f"""\
+COVID-19 simulation for {population.name}
+
+daily predictions based on data from RKI
+
+{version:%b %d, %Y}"""
+
+    plt.title(title, fontsize=10)
     plt.ylabel("% of population")
     plt.ylim(top=100)
     plt.grid(True)
