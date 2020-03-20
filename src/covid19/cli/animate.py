@@ -14,7 +14,7 @@ from .. import data, simulation
 def create_image(population: data.Population, tempdir: str, days: int):
     image = str(Path(tempdir) / "{days:03}.png")
     date = population.start + datetime.timedelta(days=days)
-    end = population.start + datetime.timedelta(days=200)
+    end = population.start + datetime.timedelta(days=120)
 
     states = list(simulation.simulate(population, version=date, end=end))
     kwargs = dict(version=date, plots=["cases"], output=image, legend=False)
@@ -28,7 +28,7 @@ def create_image(population: data.Population, tempdir: str, days: int):
 
 
 def create_images(population: data.Population, tempdir: str):
-    start = max(simulation.PROBABILITY_WINDOW_SIZE, len(population.cases) - 14)
+    start = simulation.PROBABILITY_WINDOW_SIZE + 3
     stop = len(population.cases)
     for days in range(start, stop):
         yield from create_image(population, tempdir, days)
@@ -51,4 +51,4 @@ def animate(population: str, output: str):
     with tempfile.TemporaryDirectory() as tempdir:
         images = list(create_images(_population, tempdir))
         images += images[-1:] * 5
-        imageio.mimwrite(output, images, format="GIF", fps=1.5)
+        imageio.mimwrite(output, images, format="GIF", fps=2.5)
