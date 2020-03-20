@@ -53,4 +53,4 @@ def animate(population: str, output: str):
     with tempfile.TemporaryDirectory() as tempdir:
         images = list(create_images(_population, tempdir))
         images += images[-1:] * 5
-        imageio.mimwrite(output, images, format="GIF", fps=2.5)
+        imageio.mimwrite(output, images, format="GIF", fps=2)
