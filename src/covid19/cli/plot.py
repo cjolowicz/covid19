@@ -14,6 +14,7 @@ def plot_predictions(
     population: data.Population,
     states: List[simulation.State],
     version: Optional[datetime.date],
+    plots: List[str],
 ) -> None:
     def percentage(value):
         return 100 * value / population.population
@@ -29,18 +30,25 @@ def plot_predictions(
     infections = [percentage(state.infections) for state in states]
     recoveries = [percentage(state.recoveries) for state in states]
 
-    plt.plot(
-        dates, cases, label="cases", color="tab:orange",
-    )
-    plt.plot(
-        dates, immune, label="immune", color="tab:blue",
-    )
-    plt.plot(
-        dates, infections, label="infections", color="tab:red",
-    )
-    plt.plot(
-        dates, recoveries, label="recoveries", color="tab:green",
-    )
+    if "cases" in plots:
+        plt.plot(
+            dates, cases, label="cases", color="tab:orange",
+        )
+
+    if "immune" in plots:
+        plt.plot(
+            dates, immune, label="immune", color="tab:blue",
+        )
+
+    if "infections" in plots:
+        plt.plot(
+            dates, infections, label="infections", color="tab:red",
+        )
+
+    if "recoveries" in plots:
+        plt.plot(
+            dates, recoveries, label="recoveries", color="tab:green",
+        )
 
     plt.suptitle(f"COVID-19 simulation for {population.name}", fontsize=14)
     plt.title(f"{version:%b %d, %Y}", fontsize=10)
@@ -64,10 +72,31 @@ def plot_predictions(
     default="Germany",
     type=click.Choice([population.name for population in data.populations]),
 )
+@click.option("--plot-cases/--no-plot-cases", default=True)
+@click.option("--plot-immune/--no-plot-immune", default=False)
+@click.option("--plot-infections/--no-plot-infections", default=False)
+@click.option("--plot-recoveries/--no-plot-recoveries", default=False)
 @click.option("--date", metavar="DATE", help="Base simulation on data as of DATE")
 @click.option("--immunity/--no-immunity", "with_immunity", default=True)
-def plot(population: str, date: Optional[str], with_immunity: bool):
+def plot(
+    population: str,
+    plot_cases: bool,
+    plot_immune: bool,
+    plot_infections: bool,
+    plot_recoveries: bool,
+    date: Optional[str],
+    with_immunity: bool,
+):
     _population: data.Population = data.find(population)
     version = dateparser.parse(date).date() if date is not None else None
     states = simulation.simulate(_population, with_immunity, version)
-    plot_predictions(_population, list(states), version)
+    plots = sum(
+        [
+            ["cases"] if plot_cases else [],
+            ["immune"] if plot_immune else [],
+            ["infections"] if plot_infections else [],
+            ["recoveries"] if plot_recoveries else [],
+        ],
+        start=[],
+    )
+    plot_predictions(_population, list(states), version, plots)
