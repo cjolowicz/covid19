@@ -15,6 +15,7 @@ def plot_predictions(
     states: List[simulation.State],
     version: Optional[datetime.date],
     plots: List[str],
+    output: Optional[str],
 ) -> None:
     def percentage(value):
         return 100 * value / population.population
@@ -63,7 +64,10 @@ def plot_predictions(
     xaxis.set_major_locator(locator)
     xaxis.set_major_formatter(formatter)
 
-    plt.show()
+    if output is None:
+        plt.show()
+    else:
+        plt.savefig(output)
 
 
 @main.command()
@@ -79,6 +83,7 @@ def plot_predictions(
 @click.option("--plot-recoveries/--no-plot-recoveries", default=False)
 @click.option("--date", metavar="DATE", help="Base simulation on data as of DATE")
 @click.option("--immunity/--no-immunity", "with_immunity", default=True)
+@click.option("--output", "-o", metavar="FILE")
 def plot(
     population: str,
     plot_cases: bool,
@@ -87,6 +92,7 @@ def plot(
     plot_recoveries: bool,
     date: Optional[str],
     with_immunity: bool,
+    output: Optional[str],
 ):
     _population: data.Population = data.find(population)
     version = dateparser.parse(date).date() if date is not None else None
@@ -100,4 +106,4 @@ def plot(
         ],
         start=[],
     )
-    plot_predictions(_population, list(states), version, plots)
+    plot_predictions(_population, list(states), version, plots, output)
