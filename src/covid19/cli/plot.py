@@ -52,7 +52,7 @@ def plot_predictions(
         )
 
     plt.suptitle(f"COVID-19 simulation for {population.name}", fontsize=14)
-    plt.title(f"Source: RKI, {version:%b %d, %Y}", fontsize=10)
+    plt.title(f"source: RKI, {version:%b %d, %Y}", fontsize=10)
     plt.ylabel("% of population")
     plt.ylim(top=100)
     plt.grid(True)
