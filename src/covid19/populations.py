@@ -69,7 +69,12 @@ def load_records(fp: TextIO) -> Iterator[Record]:
     for row in reader:
         if row["IdLandkreis"] == "0-1":
             row["IdLandkreis"] = "-1"
-        yield schema.load(row)
+        if "Empfagen" in row:
+            del row["Empfagen"]
+        try:
+            yield schema.load(row)
+        except ma.exceptions.ValidationError as error:
+            print(row, error)
 
 
 def load_populations(records: Sequence[Record]) -> Iterator[Population]:
