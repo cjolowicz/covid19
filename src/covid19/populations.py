@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import datetime
 from itertools import chain
 import io
-from typing import Iterator, List, TextIO
+from typing import Iterator, List, Sequence, TextIO
 
 import requests
 import desert
@@ -41,6 +41,7 @@ populations = {
     "Sachsen-Anhalt": 2_208_321,
     "Schleswig-Holstein": 2_896_712,
     "Thüringen": 2_143_145,
+    "-nicht erhoben-": 1,
 }
 
 populations["Germany"] = sum(populations.values())
@@ -63,12 +64,15 @@ class Record:
 schema = desert.schema(Record)
 
 
-def load_records(fp: TextIO) -> List[Record]:
+def load_records(fp: TextIO) -> Iterator[Record]:
     reader = csv.DictReader(fp)
-    return [schema.load(row) for row in reader]
+    for row in reader:
+        if row["IdLandkreis"] == "0-1":
+            row["IdLandkreis"] = "-1"
+        yield schema.load(row)
 
 
-def load_populations(records: List[Record]) -> Iterator[Population]:
+def load_populations(records: Sequence[Record]) -> Iterator[Population]:
     table = defaultdict(lambda: defaultdict(int))
     for record in records:
         table[record.state][record.date] += record.cases
