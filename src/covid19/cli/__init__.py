@@ -1,2 +1,2 @@
 from .main import main
-from . import animate, list, plot, rates
+from . import animate, data, list, plot, rates
