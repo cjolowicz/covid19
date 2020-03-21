@@ -6,7 +6,7 @@ from typing import Iterator, List, Sequence
 
 from more_itertools import difference, pairwise
 
-from .data import Population
+from .populations import Population
 
 
 ETA = 0.0001

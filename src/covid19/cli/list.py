@@ -9,7 +9,7 @@ from tabulate import tabulate
 
 from .main import main
 from .utils import heading
-from .. import data, simulation
+from .. import populations, simulation
 
 
 headers = [
@@ -28,7 +28,9 @@ headers = [
 
 
 def format_state(
-    state: simulation.State, population: data.Population, accumulated_infections: int
+    state: simulation.State,
+    population: populations.Population,
+    accumulated_infections: int,
 ) -> Dict[str, str]:
     result = dataclasses.asdict(state)
     result["date"] = population.start + datetime.timedelta(days=state.days - 1)
@@ -53,7 +55,7 @@ def format_state(
     return [result[header] for header in headers]
 
 
-def print_predictions(population: data.Population, with_immunity: bool) -> None:
+def print_predictions(population: populations.Population, with_immunity: bool) -> None:
     states = list(simulation.simulate(population, with_immunity))
     rows = [
         format_state(state, population, accumulated_infections)
@@ -79,11 +81,9 @@ p = {states[-1].probability:.2f}
     "--population",
     "-p",
     default="Germany",
-    type=click.Choice(
-        [population.name for population in data.populations], case_sensitive=False
-    ),
+    type=click.Choice(populations.populations, case_sensitive=False,),
 )
 @click.option("--immunity/--no-immunity", "with_immunity", default=True)
 def _list(population: str, with_immunity: bool):
-    _population: data.Population = data.find(population)
+    _population = populations.find(population)
     print_predictions(_population, with_immunity)
