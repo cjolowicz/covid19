@@ -1,5 +1,5 @@
-import rki
-import rki_arcgis
+from . import rki
+from . import rki_arcgis
 
 
 def load(name: str, source: str = "rki"):
