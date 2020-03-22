@@ -137,8 +137,18 @@ def update_cache() -> str:
         return fp.write(data)
 
 
-def load_cache() -> str:
+def is_cache_outdated() -> bool:
     if not cachefile.exists():
+        return True
+
+    mtime = cachefile.stat().st_mtime
+    last_updated = datetime.datetime.fromtimestamp(mtime).date()
+
+    return datetime.date.today() > last_updated
+
+
+def load_cache() -> str:
+    if is_cache_outdated():
         update_cache()
 
     with open(cachefile) as fp:
