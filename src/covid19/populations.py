@@ -104,13 +104,16 @@ def load_populations(records: Sequence[Record]) -> Iterator[Population]:
         yield population
 
 
-def _load():
+def load_data() -> str:
     with requests.get(url) as response:
         response.encoding = None  # https://github.com/psf/requests/issues/654
         response.raise_for_status()
-        fp = io.StringIO(response.text)
+        return response.text
 
-    records = load_records(fp)
+
+def _load():
+    data = load_data()
+    records = load_records(data)
     return list(load_populations(records))
 
 
