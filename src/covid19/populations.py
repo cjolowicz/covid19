@@ -7,7 +7,6 @@ import io
 from typing import Iterator, List, Sequence, TextIO
 
 import requests
-import desert
 import marshmallow as ma
 from more_itertools import pairwise
 
@@ -49,24 +48,34 @@ populations["Germany"] = sum(populations.values())
 
 @dataclass
 class Record:
-    object_id: int = desert.field(ma.fields.Int(data_key="ObjectId"))
-    state_id: int = desert.field(ma.fields.Int(data_key="IdBundesland"))
-    state: str = desert.field(ma.fields.Str(data_key="Bundesland"))
-    district_id: int = desert.field(ma.fields.Int(data_key="IdLandkreis"))
-    district: str = desert.field(ma.fields.Str(data_key="Landkreis"))
-    age_group: str = desert.field(ma.fields.Str(data_key="Altersgruppe"))
-    gender: str = desert.field(ma.fields.Str(data_key="Geschlecht"))
-    cases: int = desert.field(ma.fields.Int(data_key="AnzahlFall"))
-    deceased: int = desert.field(ma.fields.Int(data_key="AnzahlTodesfall"))
-    date: datetime.datetime = desert.field(
-        ma.fields.DateTime(data_key="Datenstand", format="%d.%m.%Y %H:%M")
-    )
-    date_reported: datetime.datetime = desert.field(
-        ma.fields.DateTime(data_key="Meldedatum")
-    )
+    object_id: int
+    state_id: int
+    state: str
+    district_id: int
+    district: str
+    age_group: str
+    gender: str
+    cases: int
+    deceased: int
+    date: datetime.datetime
+    date_reported: datetime.datetime
 
 
-schema = desert.schema(Record)
+class RecordSchema(ma.Schema):
+    object_id = ma.fields.Int(data_key="ObjectId")
+    state_id = ma.fields.Int(data_key="IdBundesland")
+    state = ma.fields.Str(data_key="Bundesland")
+    district_id = ma.fields.Int(data_key="IdLandkreis")
+    district = ma.fields.Str(data_key="Landkreis")
+    age_group = ma.fields.Str(data_key="Altersgruppe")
+    gender = ma.fields.Str(data_key="Geschlecht")
+    cases = ma.fields.Int(data_key="AnzahlFall")
+    deceased = ma.fields.Int(data_key="AnzahlTodesfall")
+    date = ma.fields.DateTime(data_key="Datenstand", format="%d.%m.%Y %H:%M")
+    date_reported = ma.fields.DateTime(data_key="Meldedatum")
+
+
+schema = RecordSchema()
 
 
 def load_records(data: str) -> Iterator[Record]:
