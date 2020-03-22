@@ -75,8 +75,8 @@ class RecordSchema(ma.Schema):
     gender = ma.fields.Str(data_key="Geschlecht")
     cases = ma.fields.Int(data_key="AnzahlFall")
     deceased = ma.fields.Int(data_key="AnzahlTodesfall")
-    date = ma.fields.DateTime(data_key="Datenstand", format="%d.%m.%Y %H:%M")
-    date_reported = ma.fields.DateTime(data_key="Meldedatum")
+    date = ma.fields.DateTime(data_key="Meldedatum")
+    version = ma.fields.DateTime(data_key="Datenstand", format="%d.%m.%Y %H:%M")
 
     @ma.post_load
     def post_load(self, data, **kwargs):
