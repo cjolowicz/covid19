@@ -4,11 +4,18 @@ from dataclasses import dataclass
 import datetime
 from itertools import chain
 import io
+from pathlib import Path
 from typing import Iterator, List, Sequence, TextIO
 
+import appdirs
 import requests
 import marshmallow as ma
 from more_itertools import pairwise
+
+
+url = "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv"
+cachedir = Path(appdirs.user_cache_dir(appname="covid19", appauthor="cjolowicz"))
+cachefile = cachedir / "covid19.csv"
 
 
 @dataclass
@@ -17,9 +24,6 @@ class Population:
     population: int
     start: datetime.date
     cases: List[int]
-
-
-url = "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv"
 
 
 # https://de.wikipedia.org/wiki/Liste_der_deutschen_Bundesl%C3%A4nder_nach_Bev%C3%B6lkerung
@@ -122,8 +126,23 @@ def load_data() -> str:
         return response.text
 
 
-def _load():
+def update_cache() -> str:
     data = load_data()
+    cachedir.mkdir(parents=True, exist_ok=True)
+    with open(cachefile, mode="w") as fp:
+        return fp.write(data)
+
+
+def load_cache() -> str:
+    if not cachefile.exists():
+        update_cache()
+
+    with open(cachefile) as fp:
+        return fp.read()
+
+
+def _load():
+    data = load_cache()
     records = load_records(data)
     return list(load_populations(records))
 

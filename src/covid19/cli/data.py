@@ -49,7 +49,7 @@ population = {humanize.intword(population.population)}
 @click.option("--raw/--no-raw")
 def data(population: str, raw: bool) -> None:
     if raw:
-        data = populations.load_data()
+        data = populations.load_cache()
         for record in populations.load_records(data):
             print(record)
         return
