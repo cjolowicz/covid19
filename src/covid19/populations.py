@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import datetime
+from typing import List
 
 
 @dataclass
