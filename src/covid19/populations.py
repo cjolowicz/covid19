@@ -78,6 +78,10 @@ class RecordSchema(ma.Schema):
     date = ma.fields.DateTime(data_key="Datenstand", format="%d.%m.%Y %H:%M")
     date_reported = ma.fields.DateTime(data_key="Meldedatum")
 
+    @ma.post_load
+    def post_load(self, data, **kwargs):
+        return Record(**data)
+
 
 schema = RecordSchema()
 
