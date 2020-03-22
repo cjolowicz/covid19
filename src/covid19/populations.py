@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Iterator, List, Sequence, TextIO
 
 import appdirs
+import dateutil.tz
 import requests
 import marshmallow as ma
 from more_itertools import pairwise
@@ -141,10 +142,11 @@ def is_cache_outdated() -> bool:
     if not cachefile.exists():
         return True
 
+    tz = dateutil.tz.gettz()
     mtime = cachefile.stat().st_mtime
-    last_updated = datetime.datetime.fromtimestamp(mtime).date()
+    last_updated = datetime.datetime.fromtimestamp(mtime, tz=tz).date()
 
-    return datetime.date.today() > last_updated
+    return datetime.datetime.now(tz=tz).date() > last_updated
 
 
 def load_cache() -> str:
