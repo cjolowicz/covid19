@@ -1,8 +1,12 @@
+from . import api
 from . import rki
 from . import rki_arcgis
 
 
 def load(name: str, source: str = "rki"):
+    if source == "api":
+        return api.load(name)
+
     if source == "rki":
         return rki.load(name)
 
