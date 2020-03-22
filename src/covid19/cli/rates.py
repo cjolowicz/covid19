@@ -7,16 +7,15 @@ from tabulate import tabulate
 
 from .main import main
 from .utils import heading
-from .. import populations
+from .. import data
+from ..populations import Population
 from ..simulation import Simulation
 
 
 headers = "keys"
 
 
-def format_cell(
-    population: populations.Population, days: int, rate: float
-) -> Dict[str, str]:
+def format_cell(population: Population, days: int, rate: float) -> Dict[str, str]:
     date = population.start + datetime.timedelta(days=days)
     return {
         "date": f"{date:%b %d %Y}",
@@ -24,7 +23,7 @@ def format_cell(
     }
 
 
-def print_rates(population: populations.Population, recovery: bool) -> None:
+def print_rates(population: Population, recovery: bool) -> None:
     if recovery:
         simulation = Simulation(population.population)
         cases = [
@@ -45,13 +44,8 @@ def print_rates(population: populations.Population, recovery: bool) -> None:
 
 
 @main.command()
-@click.option(
-    "--population",
-    "-p",
-    default="Germany",
-    type=click.Choice(populations.populations, case_sensitive=False,),
-)
+@click.option("--population", "-p", default="Germany", show_default=True)
 @click.option("--recovery/--no-recovery")
 def rates(population: str, recovery: bool):
-    _population = populations.find(population)
+    _population = data.load(population)
     print_rates(_population, recovery)

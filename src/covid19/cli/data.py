@@ -7,12 +7,11 @@ from tabulate import tabulate
 
 from .main import main
 from .utils import heading
-from .. import populations
+from .. import data
+from ..populations import Population
 
 
-def format_row(
-    population: populations.Population, days: int, cases: int
-) -> Dict[str, str]:
+def format_row(population: Population, days: int, cases: int) -> Dict[str, str]:
     date = population.start + datetime.timedelta(days)
     previous = population.cases[days - 1] if days > 0 else 0
     return {
@@ -24,7 +23,7 @@ def format_row(
     }
 
 
-def print_population(population: populations.Population) -> None:
+def print_population(population: Population) -> None:
     table = [
         format_row(population, days, cases)
         for days, cases in enumerate(population.cases)
@@ -40,19 +39,7 @@ population = {humanize.intword(population.population)}
 
 
 @main.command()
-@click.option(
-    "--population",
-    "-p",
-    default="Germany",
-    type=click.Choice(populations.populations, case_sensitive=False,),
-)
-@click.option("--raw/--no-raw")
-def data(population: str, raw: bool) -> None:
-    if raw:
-        data = populations.load_cache()
-        for record in populations.load_records(data):
-            print(record)
-        return
-
-    _population = populations.load(population)
+@click.option("--population", "-p", default="Germany", show_default=True)
+def data(population: str) -> None:
+    _population = data.load(population)
     print_population(_population)

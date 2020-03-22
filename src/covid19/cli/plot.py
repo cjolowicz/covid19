@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.dates
 
 from .main import main
-from .. import populations, simulation
+from .. import data, simulation
+from ..populations import Population
 
 
 def set_aspect_ratio(ratio):
@@ -18,7 +19,7 @@ def set_aspect_ratio(ratio):
 
 
 def plot_predictions(
-    population: populations.Population,
+    population: Population,
     states: List[simulation.State],
     version: Optional[datetime.date],
     plots: List[str],
@@ -95,12 +96,7 @@ daily predictions based on data from RKI
 
 
 @main.command()
-@click.option(
-    "--population",
-    "-p",
-    default="Germany",
-    type=click.Choice(populations.populations, case_sensitive=False,),
-)
+@click.option("--population", "-p", default="Germany", show_default=True)
 @click.option("--plot-cases/--no-plot-cases", default=True)
 @click.option("--plot-immune/--no-plot-immune", default=False)
 @click.option("--plot-infections/--no-plot-infections", default=False)
@@ -118,7 +114,7 @@ def plot(
     with_immunity: bool,
     output: Optional[str],
 ):
-    _population = populations.load(population)
+    _population = data.load(population)
     version = dateparser.parse(date).date() if date is not None else None
     states = simulation.simulate(_population, with_immunity, version)
     plots = sum(

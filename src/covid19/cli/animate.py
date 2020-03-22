@@ -8,10 +8,11 @@ import matplotlib.pyplot as plt
 
 from .main import main
 from .plot import plot_predictions
-from .. import populations, simulation
+from .. import data, simulation
+from ..populations import Population
 
 
-def create_image(population: populations.Population, tempdir: str, days: int):
+def create_image(population: Population, tempdir: str, days: int):
     image = str(Path(tempdir) / "{days:03}.png")
     date = population.start + datetime.timedelta(days=days)
     end = population.start + datetime.timedelta(days=120)
@@ -32,7 +33,7 @@ def create_image(population: populations.Population, tempdir: str, days: int):
     plot_predictions(population, states, color="moccasin", **kwargs)
 
 
-def create_images(population: populations.Population, tempdir: str):
+def create_images(population: Population, tempdir: str):
     start = simulation.PROBABILITY_WINDOW_SIZE + 3
     stop = len(population.cases)
     for days in range(start, stop):
@@ -40,18 +41,12 @@ def create_images(population: populations.Population, tempdir: str):
 
 
 @main.command()
+@click.option("--population", "-p", default="Germany", show_default=True)
 @click.option(
-    "--population",
-    "-p",
-    default="Germany",
-    show_default=True,
-    type=click.Choice(populations.populations, case_sensitive=False,),
-)
-@click.option(
-    "--output", "-o", metavar="FILE", default="covid19.gif", show_default=True,
+    "--output", "-o", metavar="FILE", default="covid19.gif", show_default=True
 )
 def animate(population: str, output: str):
-    _population = populations.load(population)
+    _population = data.load(population)
 
     with tempfile.TemporaryDirectory() as tempdir:
         images = list(create_images(_population, tempdir))
