@@ -41,6 +41,7 @@ population = {humanize.intword(population.population)}
 
 @main.command()
 @options.population
-def data(population: str) -> None:
-    _population = _data.load(population)
+@options.data_source
+def data(population: str, data_source: str) -> None:
+    _population = _data.load(population, source=data_source)
     print_population(_population)

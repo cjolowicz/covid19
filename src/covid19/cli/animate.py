@@ -43,11 +43,12 @@ def create_images(population: Population, tempdir: str):
 
 @main.command()
 @options.population
+@options.data_source
 @click.option(
     "--output", "-o", metavar="FILE", default="covid19.gif", show_default=True
 )
-def animate(population: str, output: str):
-    _population = data.load(population)
+def animate(population: str, data_source: str, output: str):
+    _population = data.load(population, source=data_source)
 
     with tempfile.TemporaryDirectory() as tempdir:
         images = list(create_images(_population, tempdir))
