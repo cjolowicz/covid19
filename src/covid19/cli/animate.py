@@ -17,6 +17,9 @@ def create_image(population: populations.Population, tempdir: str, days: int):
     end = population.start + datetime.timedelta(days=120)
 
     states = list(simulation.simulate(population, version=date, end=end))
+    if states[-1].probability == 0:
+        return
+
     kwargs = dict(version=date, plots=["cases"], output=image, legend=False)
 
     plt.xlim(left=population.start, right=end)
