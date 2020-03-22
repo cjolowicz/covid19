@@ -138,19 +138,20 @@ def update_cache() -> str:
         return fp.write(data)
 
 
-def is_cache_outdated() -> bool:
+def is_cache_expired() -> bool:
     if not cachefile.exists():
         return True
 
-    tz = dateutil.tz.gettz()
     mtime = cachefile.stat().st_mtime
-    last_updated = datetime.datetime.fromtimestamp(mtime, tz=tz).date()
+    tz = dateutil.tz.gettz()
+    now = datetime.datetime.now(tz=tz)
+    last_updated = datetime.datetime.fromtimestamp(mtime, tz=tz)
 
-    return datetime.datetime.now(tz=tz).date() > last_updated
+    return now.date() > last_updated.date()
 
 
 def load_cache() -> str:
-    if is_cache_outdated():
+    if is_cache_expired():
         update_cache()
 
     with open(cachefile) as fp:
