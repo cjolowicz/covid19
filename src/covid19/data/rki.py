@@ -1,8 +1,9 @@
 """
-Data manually copied from RKI daily reports.
+Data from daily situation reports of the Robert Koch Institute (RKI).
 
-- https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html
-- https://de.wikipedia.org/wiki/COVID-19-Pandemie_in_Deutschland
+https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Situationsberichte/Gesamt.html
+
+via: https://de.wikipedia.org/wiki/COVID-19-Pandemie_in_Deutschland
 """
 
 import datetime
@@ -19,11 +20,11 @@ populations = [
             1,
             3,
             6,
-            9,
-            15,
-            24,
+            13,
+            19,
             28,
             40,
+            48,
             48,
             90,
             137,
@@ -31,7 +32,6 @@ populations = [
             216,
             265,
             300,
-            345,
             391,
             573,
             731,
@@ -53,20 +53,19 @@ populations = [
             117,
             150,
             188,
-            242,
-            354,
-            534,
-            684,
-            847,
-            1112,
-            1460,
-            1884,
+            240,
+            400,
+            639,
+            795,
+            902,
+            1139,
+            1296,
+            1567,
             2369,
             3062,
             3795,
             4838,
             6012,
-            7156,
             8198,
             10999,
             13957,
