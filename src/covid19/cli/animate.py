@@ -13,18 +13,18 @@ from .. import data, simulation
 from ..populations import Population
 
 
-def create_image(population: Population, tempdir: str, days: int):
-    image = str(Path(tempdir) / "{days:03}.png")
-    date = population.start + datetime.timedelta(days=days)
-    end = population.start + datetime.timedelta(days=120)
+def simulate(population: Population, start: int, stop: int, end: datetime.date):
+    for days in range(start, stop):
+        date = population.start + datetime.timedelta(days=days)
+        states = list(simulation.simulate(population, version=date, end=end))
+        if states[-1].probability != 0:
+            yield date, states
 
-    states = list(simulation.simulate(population, version=date, end=end))
-    if states[-1].probability == 0:
-        return
 
+def create_image(population: Population, tempdir: str, date, states):
+    image = str(Path(tempdir) / "{date:%Y%m%d}.png")
     kwargs = dict(version=date, plots=["cases"], output=image, legend=False)
 
-    plt.xlim(left=population.start, right=end)
     line = plt.axvline(x=date, color="tab:gray")
     plot_predictions(population, states, **kwargs)
 
@@ -37,8 +37,11 @@ def create_image(population: Population, tempdir: str, days: int):
 def create_images(population: Population, tempdir: str):
     start = simulation.PROBABILITY_WINDOW_SIZE + 3
     stop = len(population.cases)
-    for days in range(start, stop):
-        yield from create_image(population, tempdir, days)
+    end = population.start + datetime.timedelta(days=182)
+    simulations = list(simulate(population, start, stop, end))
+    plt.xlim(left=simulations[0][0], right=end)
+    for date, states in simulations:
+        yield from create_image(population, tempdir, date, states)
 
 
 @main.command()
