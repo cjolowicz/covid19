@@ -5,6 +5,7 @@ import click
 from more_itertools import difference, pairwise
 from tabulate import tabulate
 
+from . import options
 from .main import main
 from .utils import heading
 from .. import data
@@ -44,7 +45,7 @@ def print_rates(population: Population, recovery: bool) -> None:
 
 
 @main.command()
-@click.option("--population", "-p", default="Germany", show_default=True)
+@options.population
 @click.option("--recovery/--no-recovery")
 def rates(population: str, recovery: bool):
     _population = data.load(population)

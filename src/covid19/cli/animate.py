@@ -6,6 +6,7 @@ import click
 import imageio
 import matplotlib.pyplot as plt
 
+from . import options
 from .main import main
 from .plot import plot_predictions
 from .. import data, simulation
@@ -41,7 +42,7 @@ def create_images(population: Population, tempdir: str):
 
 
 @main.command()
-@click.option("--population", "-p", default="Germany", show_default=True)
+@options.population
 @click.option(
     "--output", "-o", metavar="FILE", default="covid19.gif", show_default=True
 )

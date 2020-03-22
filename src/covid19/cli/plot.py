@@ -6,6 +6,7 @@ import dateparser
 import matplotlib.pyplot as plt
 import matplotlib.dates
 
+from . import options
 from .main import main
 from .. import data, simulation
 from ..populations import Population
@@ -96,13 +97,13 @@ daily predictions based on data from RKI
 
 
 @main.command()
-@click.option("--population", "-p", default="Germany", show_default=True)
+@options.population
 @click.option("--plot-cases/--no-plot-cases", default=True)
 @click.option("--plot-immune/--no-plot-immune", default=False)
 @click.option("--plot-infections/--no-plot-infections", default=False)
 @click.option("--plot-recoveries/--no-plot-recoveries", default=False)
 @click.option("--date", metavar="DATE", help="Base simulation on data as of DATE")
-@click.option("--immunity/--no-immunity", "with_immunity", default=True)
+@options.with_immunity
 @click.option("--output", "-o", metavar="FILE")
 def plot(
     population: str,

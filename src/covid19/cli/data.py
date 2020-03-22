@@ -5,6 +5,7 @@ import click
 import humanize
 from tabulate import tabulate
 
+from . import options
 from .main import main
 from .utils import heading
 from .. import data as _data
@@ -39,7 +40,7 @@ population = {humanize.intword(population.population)}
 
 
 @main.command()
-@click.option("--population", "-p", default="Germany", show_default=True)
+@options.population
 def data(population: str) -> None:
     _population = _data.load(population)
     print_population(_population)

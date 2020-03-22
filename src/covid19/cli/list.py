@@ -7,6 +7,7 @@ import click
 import humanize
 from tabulate import tabulate
 
+from . import options
 from .main import main
 from .utils import heading
 from .. import data, simulation
@@ -76,8 +77,8 @@ p = {states[-1].probability:.2f}
 
 
 @main.command("list")
-@click.option("--population", "-p", default="Germany", show_default=True)
-@click.option("--immunity/--no-immunity", "with_immunity", default=True)
+@options.population
+@options.with_immunity
 def _list(population: str, with_immunity: bool):
     _population = data.load(population)
     print_predictions(_population, with_immunity)
