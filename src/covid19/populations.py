@@ -62,7 +62,7 @@ class Record:
     cases: int
     deceased: int
     date: datetime.datetime
-    date_reported: datetime.datetime
+    version: datetime.datetime
 
 
 class RecordSchema(ma.Schema):
