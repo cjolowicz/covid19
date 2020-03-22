@@ -7,7 +7,7 @@ from tabulate import tabulate
 
 from .main import main
 from .utils import heading
-from .. import data
+from .. import data as _data
 from ..populations import Population
 
 
@@ -41,5 +41,5 @@ population = {humanize.intword(population.population)}
 @main.command()
 @click.option("--population", "-p", default="Germany", show_default=True)
 def data(population: str) -> None:
-    _population = data.load(population)
+    _population = _data.load(population)
     print_population(_population)
