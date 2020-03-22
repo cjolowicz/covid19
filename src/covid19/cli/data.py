@@ -46,6 +46,13 @@ population = {humanize.intword(population.population)}
     default="Germany",
     type=click.Choice(populations.populations, case_sensitive=False,),
 )
-def data(population: str):
+@click.option("--raw/--no-raw")
+def data(population: str, raw: bool) -> None:
+    if raw:
+        data = populations.load_data()
+        for record in populations.load_records(data):
+            print(record)
+        return
+
     _population = populations.load(population)
     print_population(_population)
