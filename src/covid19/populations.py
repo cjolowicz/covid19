@@ -58,7 +58,9 @@ class Record:
     gender: str = desert.field(ma.fields.Str(data_key="Geschlecht"))
     cases: int = desert.field(ma.fields.Int(data_key="AnzahlFall"))
     deceased: int = desert.field(ma.fields.Int(data_key="AnzahlTodesfall"))
-    date: datetime.datetime = desert.field(ma.fields.DateTime(data_key="Datenstand"))
+    date: datetime.datetime = desert.field(
+        ma.fields.DateTime(data_key="Datenstand", format="%d.%m.%Y %H:%M")
+    )
     date_reported: datetime.datetime = desert.field(
         ma.fields.DateTime(data_key="Meldedatum")
     )
