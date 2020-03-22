@@ -58,14 +58,17 @@ class Record:
     gender: str = desert.field(ma.fields.Str(data_key="Geschlecht"))
     cases: int = desert.field(ma.fields.Int(data_key="AnzahlFall"))
     deceased: int = desert.field(ma.fields.Int(data_key="AnzahlTodesfall"))
-    date: datetime.datetime = desert.field(ma.fields.DateTime(data_key="Meldedatum"))
+    date: datetime.datetime = desert.field(ma.fields.DateTime(data_key="Datenstand"))
+    date_reported: datetime.datetime = desert.field(
+        ma.fields.DateTime(data_key="Meldedatum")
+    )
 
 
 schema = desert.schema(Record)
 
 
-def load_records(fp: TextIO) -> Iterator[Record]:
-    reader = csv.DictReader(fp)
+def load_records(data: str) -> Iterator[Record]:
+    reader = csv.DictReader(io.StringIO(data))
     for row in reader:
         if row["IdLandkreis"] == "0-1":
             row["IdLandkreis"] = "-1"
