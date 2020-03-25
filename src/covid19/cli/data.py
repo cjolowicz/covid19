@@ -16,7 +16,7 @@ def format_row(population: Population, days: int, cases: int) -> Dict[str, str]:
     date = population.start + datetime.timedelta(days)
     previous = population.cases[days - 1] if days > 0 else 0
     return {
-        "date": f"{date:%b %d %Y}",
+        "date": f"{date:%a %b %d %Y}",
         "cases": cases,
         "cases%": f"{100 * cases / population.population:.3f}%",
         "difference": cases - previous,
