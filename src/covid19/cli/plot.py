@@ -27,6 +27,7 @@ def plot_predictions(
     output: Optional[str],
     color: str = "tab:orange",
     legend: bool = True,
+    yscale: str = "linear",
 ) -> None:
     def percentage(value):
         return 100 * value / population.population
@@ -41,6 +42,8 @@ def plot_predictions(
     immune = [percentage(state.immune) for state in states]
     infections = [percentage(state.infections) for state in states]
     recoveries = [percentage(state.recoveries) for state in states]
+
+    plt.yscale(yscale)
 
     if "cases" in plots:
         plt.plot(
@@ -71,13 +74,18 @@ daily predictions based on data from RKI
 
     plt.title(title, fontsize=10)
     plt.ylabel("% of population")
-    plt.ylim(bottom=-5, top=105)
+    if yscale == "linear":
+        plt.ylim(bottom=-5, top=105)
+    elif yscale == "log":
+        plt.ylim(bottom=10 ** -4, top=10 ** 2)
+
     plt.grid(True)
     text = plt.figtext(
         0.99, 0.01, "https://github.com/cjolowicz/covid19", horizontalalignment="right"
     )
 
-    set_aspect_ratio(0.4)
+    if yscale == "linear":
+        set_aspect_ratio(0.4)
 
     if legend:
         plt.legend()
@@ -102,6 +110,7 @@ daily predictions based on data from RKI
 @click.option("--plot-immune/--no-plot-immune", default=False)
 @click.option("--plot-infections/--no-plot-infections", default=False)
 @click.option("--plot-recoveries/--no-plot-recoveries", default=False)
+@options.yscale
 @click.option("--date", metavar="DATE", help="Base simulation on data as of DATE")
 @options.with_immunity
 @click.option("--output", "-o", metavar="FILE")
@@ -111,6 +120,7 @@ def plot(
     plot_immune: bool,
     plot_infections: bool,
     plot_recoveries: bool,
+    yscale: str,
     date: Optional[str],
     with_immunity: bool,
     output: Optional[str],
@@ -127,4 +137,11 @@ def plot(
         ],
         start=[],
     )
-    plot_predictions(_population, list(states), version, plots, output)
+    plot_predictions(
+        population=_population,
+        states=list(states),
+        version=version,
+        plots=plots,
+        output=output,
+        yscale=yscale,
+    )
