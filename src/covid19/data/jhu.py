@@ -1,15 +1,16 @@
+"""Data from Johns Hopkins via simonw/covid-19-datasette."""
 from collections import defaultdict
 from dataclasses import dataclass
 import datetime
-from typing import Any, Iterator, List, Sequence
+from typing import Any, Iterator, List, Optional, Sequence
 
-import dateutil.parser
-import dateutil.tz
+import dateparser
 import desert
+import marshmallow
 import requests
 
+from . import populations
 from ..populations import Population
-from .api import populations
 
 
 url = (
@@ -23,6 +24,11 @@ def request_data(name: str) -> Any:
         return response.json()
 
 
+class DateTime(marshmallow.fields.DateTime):
+    def _deserialize(value, *args, **kwargs):
+        return dateparser.parse(str(value))
+
+
 @dataclass
 class Record:
     rowid: int
@@ -31,42 +37,42 @@ class Record:
     province_or_state: Optional[str]
     admin2: Optional[str]
     fips: Optional[str]
-    confirmed: int
-    deaths: int
-    recovered: int
-    active: int
-    latitude: str
-    longitude: str
-    last_update: datetime.datetime
-    combined_key: str
+    confirmed: Optional[int]
+    deaths: Optional[int]
+    recovered: Optional[int]
+    active: Optional[int]
+    latitude: Optional[str]
+    longitude: Optional[str]
+    last_update: datetime.datetime = desert.field(DateTime())
+    combined_key: Optional[str]
 
 
 schema = desert.schema(Record)
 
 
-def load_records(data: Any) -> List[Record]:
+def load_records(data: Any) -> Iterator[Record]:
     columns = data["columns"]
-    return [schema.load(dict(zip(columns, row))) for row in data["rows"]]
+    for row in data["rows"]:
+        try:
+            mapping = dict(zip(columns, row))
+            yield schema.load(mapping)
+        except marshmallow.exceptions.ValidationError as error:
+            raise ValueError(f"bad record: {mapping}") from error
 
 
-def process_records(records: List[Record]) -> List[Record]:
-    filtered = filter(lambda record: not record.province_or_state, records)
-    return sorted(filtered, key=lambda record: record.day)
-
-
-def load_population(records: List[Record]) -> Population:
+def load_population(records: Iterator[Record]) -> Population:
+    records = sorted(records, key=lambda record: record.day)
+    timeseries = defaultdict(int)
+    for record in records:
+        timeseries[record.day] += record.confirmed
     first = records[0]
     name = first.country_or_region
-    return Population(
-        name=name,
-        population=populations[name],
-        start=first.day,
-        cases=[record.confirmed for record in records],
-    )
+    population = populations.load(name)
+    cases = timeseries.values()
+    return Population(name=name, population=population, start=first.day, cases=cases)
 
 
 def load(name: str) -> Population:
     data = request_data(name)
     records = load_records(data)
-    records = process_records(records)
     return load_population(records)
