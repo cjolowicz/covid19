@@ -11,7 +11,7 @@ from .populations import Population
 
 ETA = 0.0001
 AVERAGE_CASE_DURATION = 14
-PROBABILITY_WINDOW_SIZE = 5
+PROBABILITY_WINDOW_SIZE = 7
 
 
 @dataclass
